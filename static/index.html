@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Chat App with Go</title>
+  </head>
+  <body>
+    <div class="center">
+      <h1>Chat App with Go</h1>
+      <br />
+
+      <input type="text" id="name-input" placeholder="Enter your name">
+      <input type="submit" value="Join" onclick="joinChat()">
+      <br />
+
+      <div id="messages"></div>
+      <br />
+
+      <form action="#" onsubmit="sendMessage(); return false;" >
+        <input type="text" id="message-input">
+        <input type="submit" value="Send">
+    </form>
+
+      <script>
+        
+        var socket;
+        function joinChat() {
+            var name = document.getElementById("name-input").value;
+
+            socket = new WebSocket("ws://localhost:9000/ws");
+            socket.addEventListener("open", (event) => {
+                console.log("Connected to the server");
+
+                socket.send(name);
+
+                document.getElementById("name-input").disabled = true;
+
+                document.getElementById("message-input").disabled = false;
+                document.getElementById("message-input").focus();
+                document.getElementById("message-input").select();
+            })
+
+            socket.addEventListener("message", (event) => {
+                var messages = document.getElementById("messages");
+                messages.innerHTML += event.data + "<br />";
+            })
+
+            socket.addEventListener("close", (event) => {
+                console.log("Disconnected from the server");
+            })
+        }
+
+        function sendMessage() {
+            var message = document.getElementById("message-input").value;
+            socket.send(message);
+        }
+
+      </script>  
+      <style>
+        body {
+          font-family: sans-serif;
+          background-color: #f0f0f0;
+          padding: 20px;
+        }
+        .center {
+          text-align: center;
+        }
+      </style>
+    </div>
+  </body>
+</html>
