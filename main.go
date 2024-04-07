@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+
+	_ "embed"
 )
 
 type Client struct {
@@ -31,8 +33,14 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+//go:embed static/index.html
+var indexHTML string
+
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("static")))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(indexHTML))
+	})
 
 	room := NewRoom()
 	go room.run()
